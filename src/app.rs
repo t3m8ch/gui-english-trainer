@@ -1,6 +1,6 @@
 use iced::{
     widget::{button, text, text_input, Column, Container},
-    Color, Element,
+    Color,
 };
 
 use crate::{
@@ -104,7 +104,7 @@ impl Application {
                         }
                     }
                 }
-            },
+            }
         }
     }
 
@@ -117,33 +117,8 @@ impl Application {
         app_column()
             .push(text(current_word.get_original()))
             .push(match answer_result {
-                Some(answer_result) => Element::from(
-                    app_column()
-                        .push(if answer_result.is_correct() {
-                            text("Правильный ответ").color(Color::from_rgb8(40, 255, 40))
-                        } else {
-                            text(format!(
-                                "Неправильный ответ. Правильный: {}",
-                                format_traslation(current_word.get_translation())
-                            ))
-                            .color(Color::from_rgb8(255, 40, 40))
-                        })
-                        .push(button("Следующий вопрос").on_press(Message::NextWord)),
-                ),
-                None => Element::from(
-                    app_column()
-                        .push(
-                            text_input("Введите перевод", text_input_value)
-                                .width(500)
-                                .on_submit(Message::SubmitAnswer(Answer::from_str(
-                                    text_input_value,
-                                )))
-                                .on_input(Message::ChangeAnswerTextInput),
-                        )
-                        .push(button("Ответить").on_press(Message::SubmitAnswer(
-                            Answer::from_str(text_input_value),
-                        ))),
-                ),
+                Some(answer_result) => self.answer_correctness_view(answer_result, current_word),
+                None => self.answer_form_view(text_input_value),
             })
     }
 
@@ -151,6 +126,43 @@ impl Application {
         app_column()
             .push(text("Слова закончились"))
             .push(button("Перейти к выбору файла").on_press(Message::ResetFile))
+    }
+
+    fn answer_correctness_view(
+        &self,
+        answer_result: &AnswerResult,
+        current_word: &Word,
+    ) -> Column<Message> {
+        let red = Color::from_rgb8(255, 40, 40);
+        let green = Color::from_rgb8(40, 255, 40);
+
+        let correctness = if answer_result.is_correct() {
+            text("Правильный ответ").color(red)
+        } else {
+            text(format!(
+                "Неправильный ответ. Правильный: {}",
+                format_traslation(current_word.get_translation())
+            ))
+            .color(green)
+        };
+
+        app_column()
+            .push(correctness)
+            .push(button("Следующий вопрос").on_press(Message::NextWord))
+    }
+
+    fn answer_form_view(&self, text_input_value: &str) -> Column<Message> {
+        app_column()
+            .push(
+                text_input("Введите перевод", text_input_value)
+                    .width(500)
+                    .on_submit(Message::SubmitAnswer(Answer::from_str(text_input_value)))
+                    .on_input(Message::ChangeAnswerTextInput),
+            )
+            .push(
+                button("Ответить")
+                    .on_press(Message::SubmitAnswer(Answer::from_str(text_input_value))),
+            )
     }
 }
 
