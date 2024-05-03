@@ -137,13 +137,13 @@ impl Application {
         let green = Color::from_rgb8(40, 255, 40);
 
         let correctness = if answer_result.is_correct() {
-            text("Правильный ответ").color(red)
+            text("Правильный ответ").color(green)
         } else {
             text(format!(
                 "Неправильный ответ. Правильный: {}",
                 format_traslation(current_word.get_translation())
             ))
-            .color(green)
+            .color(red)
         };
 
         app_column()
