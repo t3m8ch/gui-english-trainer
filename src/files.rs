@@ -13,7 +13,7 @@ pub async fn load_trainer_from_file() -> Result<Trainer, LoadTrainerError> {
     Ok(Trainer::new(
         read_text()
             .await?
-            .split("\n")
+            .split('\n')
             .filter(|line| line.trim() != "")
             .map(parse_line)
             .collect::<Result<Vec<Word>, LoadTrainerError>>()?,
@@ -33,16 +33,16 @@ async fn read_text() -> Result<String, LoadTrainerError> {
 }
 
 fn parse_line(line: &str) -> Result<Word, LoadTrainerError> {
-    let mut line = line.trim().split(":");
+    let mut line = line.trim().split(':');
     if let Some(original) = line.next() {
         let original = original.trim();
         if let Some(translation) = line.next() {
             let translation = translation
                 .trim()
-                .split(" ")
+                .split(' ')
                 .map(|variants| {
                     variants
-                        .split("/")
+                        .split('/')
                         .map(|variant| variant.trim().to_string())
                         .collect::<Vec<String>>()
                 })

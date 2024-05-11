@@ -131,15 +131,13 @@ impl Application {
                 if let FileChosen::Yes {
                     trainer: _,
                     answer_text_input: _,
-                    answer_result,
+                    answer_result: Some(answer_result),
                 } = &self.file_chosen
                 {
-                    if let Some(answer_result) = answer_result {
-                        self.file_chosen = FileChosen::Yes {
-                            trainer: answer_result.next(),
-                            answer_text_input: String::new(),
-                            answer_result: None,
-                        }
+                    self.file_chosen = FileChosen::Yes {
+                        trainer: answer_result.next(),
+                        answer_text_input: String::new(),
+                        answer_result: None,
                     }
                 }
 
@@ -196,17 +194,17 @@ impl Application {
             .push(
                 text_input("Введите перевод", text_input_value)
                     .width(500)
-                    .on_submit(Message::SubmitAnswer(Answer::from_str(text_input_value)))
+                    .on_submit(Message::SubmitAnswer(Answer::from_answer_text(text_input_value)))
                     .on_input(Message::ChangeAnswerTextInput),
             )
             .push(
                 button("Ответить")
-                    .on_press(Message::SubmitAnswer(Answer::from_str(text_input_value))),
+                    .on_press(Message::SubmitAnswer(Answer::from_answer_text(text_input_value))),
             )
     }
 }
 
-fn format_traslation(translation: &Vec<Vec<String>>) -> String {
+fn format_traslation(translation: &[Vec<String>]) -> String {
     translation
         .iter()
         .map(|variants| variants.join("/"))

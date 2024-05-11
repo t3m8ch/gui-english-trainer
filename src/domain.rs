@@ -48,8 +48,8 @@ impl AnswerResult {
 pub struct Answer(Vec<String>);
 
 impl Answer {
-    pub fn from_str(answer: &str) -> Self {
-        Self(answer.split(" ").map(|s| s.to_string()).collect())
+    pub fn from_answer_text(answer: &str) -> Self {
+        Self(answer.split(' ').map(|s| s.to_string()).collect())
     }
 }
 
@@ -79,7 +79,7 @@ impl Trainer {
 
     fn remove_first_word(&self) -> Trainer {
         Trainer {
-            words: self.words.iter().skip(1).map(|w| w.clone()).collect(),
+            words: self.words.iter().skip(1).cloned().collect(),
         }
     }
 
