@@ -2,6 +2,7 @@ use app::Application;
 
 pub mod app;
 pub mod domain;
+pub mod files;
 pub mod messages;
 pub mod widgets;
 

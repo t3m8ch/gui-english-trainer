@@ -1,10 +1,11 @@
 use iced::{
     widget::{button, text, text_input, Column, Container},
-    Color,
+    Color, Command,
 };
 
 use crate::{
-    domain::{get_test_trainer, Answer, AnswerResult, Trainer, Word},
+    domain::{Answer, AnswerResult, Trainer, Word},
+    files::load_trainer_from_file,
     messages::Message,
     widgets::{app_column, app_container},
 };
@@ -16,7 +17,9 @@ pub struct Application {
 
 #[derive(Debug, Clone)]
 pub enum FileChosen {
-    No,
+    No {
+        error: Option<String>,
+    },
     Yes {
         trainer: Trainer,
         answer_text_input: String,
@@ -26,16 +29,25 @@ pub enum FileChosen {
 
 impl Default for FileChosen {
     fn default() -> Self {
-        Self::No
+        Self::No { error: None }
     }
 }
 
 impl Application {
     pub fn view(&self) -> Container<Message> {
         app_container(match &self.file_chosen {
-            FileChosen::No => app_column()
-                .push(text("Необходимо открыть файл со словами"))
-                .push(button("Выбрать файл").on_press(Message::ChooseFile)),
+            FileChosen::No { error } => {
+                let column = app_column()
+                    .push(text("Необходимо открыть файл со словами"))
+                    .push(button("Выбрать файл").on_press(Message::ChooseFile));
+
+                let red = Color::from_rgb8(255, 40, 40);
+
+                match error {
+                    Some(error) => column.push(text(error).color(red)),
+                    None => column,
+                }
+            }
             FileChosen::Yes {
                 trainer,
                 answer_result,
@@ -49,17 +61,39 @@ impl Application {
         })
     }
 
-    pub fn update(&mut self, message: Message) {
+    pub fn update(&mut self, message: Message) -> Command<Message> {
         match message {
-            Message::ChooseFile => {
-                self.file_chosen = FileChosen::Yes {
-                    trainer: get_test_trainer(),
-                    answer_result: None,
-                    answer_text_input: String::new(),
+            Message::ChooseFile => Command::perform(load_trainer_from_file(), Message::FileChosen),
+            Message::FileChosen(trainer) => {
+                match trainer {
+                    Ok(trainer) => {
+                        self.file_chosen = FileChosen::Yes {
+                            trainer,
+                            answer_result: None,
+                            answer_text_input: String::new(),
+                        }
+                    }
+                    Err(error) => {
+                        self.file_chosen = FileChosen::No {
+                            error: match error {
+                                crate::files::LoadTrainerError::DialogClosed => None,
+                                crate::files::LoadTrainerError::IoError(_) => {
+                                    Some("Ошибка ввода/вывода".to_string())
+                                }
+                                crate::files::LoadTrainerError::ParseError => Some(
+                                    "Некорректный файл, отредактируйте его и попробуйте ещё раз"
+                                        .to_string(),
+                                ),
+                            },
+                        }
+                    }
                 }
+
+                Command::none()
             }
             Message::ResetFile => {
-                self.file_chosen = FileChosen::No;
+                self.file_chosen = FileChosen::No { error: None };
+                Command::none()
             }
             Message::SubmitAnswer(answer) => {
                 if let FileChosen::Yes {
@@ -74,6 +108,8 @@ impl Application {
                         answer_result: Some(trainer.answer(answer)),
                     }
                 }
+
+                Command::none()
             }
             Message::ChangeAnswerTextInput(new_value) => {
                 if let FileChosen::Yes {
@@ -88,6 +124,8 @@ impl Application {
                         answer_result: answer_result.clone(),
                     }
                 }
+
+                Command::none()
             }
             Message::NextWord => {
                 if let FileChosen::Yes {
@@ -104,6 +142,8 @@ impl Application {
                         }
                     }
                 }
+
+                Command::none()
             }
         }
     }
