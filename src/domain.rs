@@ -64,12 +64,12 @@ impl Answer {
             answer
                 .trim()
                 .split(' ')
-                .filter(|t| *t != "")
+                .filter(|t| !t.is_empty())
                 .map(|word| {
                     let mut variants: Vec<String> = word
                         .trim()
                         .split('/')
-                        .filter(|w| *w != "")
+                        .filter(|w| !w.is_empty())
                         .map(|w| w.trim().to_lowercase())
                         .collect();
                     variants.sort();
