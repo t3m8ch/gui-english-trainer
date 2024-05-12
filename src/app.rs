@@ -105,7 +105,7 @@ impl Application {
                     self.file_chosen = FileChosen::Yes {
                         trainer: trainer.clone(),
                         answer_text_input: answer_text_input.clone(),
-                        answer_result: Some(trainer.answer(answer)),
+                        answer_result: Some(trainer.answer(&answer)),
                     }
                 }
 
@@ -154,7 +154,11 @@ impl Application {
         answer_result: &Option<AnswerResult>,
     ) -> Column<Message> {
         app_column()
-            .push(text(format!("{}/{}", trainer.get_correct_answers_count(), trainer.get_words_count())))
+            .push(text(format!(
+                "{}/{}",
+                trainer.get_correct_answers_count(),
+                trainer.get_words_count()
+            )))
             .push(text(current_word.get_original()))
             .push(match answer_result {
                 Some(answer_result) => self.answer_correctness_view(answer_result, current_word),

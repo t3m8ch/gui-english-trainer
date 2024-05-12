@@ -81,10 +81,13 @@ impl Answer {
 
 impl Trainer {
     pub fn new(words: &[Word]) -> Self {
-        Self { words: words.to_vec(), words_count: words.len() }
+        Self {
+            words: words.to_vec(),
+            words_count: words.len(),
+        }
     }
 
-    pub fn answer(&self, answer: Answer) -> AnswerResult {
+    pub fn answer(&self, answer: &Answer) -> AnswerResult {
         AnswerResult {
             trainer: self.clone(),
             correct: self.is_correct(answer),
@@ -103,10 +106,13 @@ impl Trainer {
         self.words_count - self.words.len()
     }
 
-    fn is_correct(&self, answer: Answer) -> bool {
+    fn is_correct(&self, answer: &Answer) -> bool {
         match self.get_current_word() {
-            Some(current_word) => zip(answer.0, &current_word.translation)
-                .all(|(actual, expected)| actual == *expected),
+            Some(current_word) => {
+                zip(answer.0.iter(), &current_word.translation)
+                    .all(|(actual, expected)| actual == expected)
+                    && answer.0.len() == current_word.translation.len()
+            }
             None => false,
         }
     }
