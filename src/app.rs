@@ -1,5 +1,5 @@
 use iced::{
-    widget::{button, text, text_input, Column, Container},
+    widget::{button, text, text_input, Column, Container, Row},
     Color, Command,
 };
 
@@ -196,13 +196,13 @@ impl Application {
     }
 
     fn answer_form_view(&self, text_input_value: &str) -> Column<Message> {
+        let answer = Answer::from_answer_text(text_input_value);
         app_column()
+            .push(self.answer_view(&answer))
             .push(
                 text_input("Введите перевод", text_input_value)
                     .width(500)
-                    .on_submit(Message::SubmitAnswer(Answer::from_answer_text(
-                        text_input_value,
-                    )))
+                    .on_submit(Message::SubmitAnswer(answer))
                     .on_input(Message::ChangeAnswerTextInput),
             )
             .push(
@@ -210,6 +210,14 @@ impl Application {
                     text_input_value,
                 ))),
             )
+    }
+
+    fn answer_view(&self, answer: &Answer) -> Row<Message> {
+        let mut answer_row = Row::new().spacing(15);
+        for item in answer.get_items() {
+            answer_row = answer_row.push(text(item.join("/")));
+        }
+        answer_row
     }
 }
 

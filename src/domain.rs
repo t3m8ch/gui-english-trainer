@@ -69,6 +69,7 @@ impl Answer {
                     let mut variants: Vec<String> = word
                         .trim()
                         .split('/')
+                        .filter(|w| *w != "")
                         .map(|w| w.trim().to_lowercase())
                         .collect();
                     variants.sort();
@@ -76,6 +77,10 @@ impl Answer {
                 })
                 .collect(),
         )
+    }
+
+    pub fn get_items(&self) -> &[Vec<String>] {
+        &self.0
     }
 }
 
