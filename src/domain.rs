@@ -1,4 +1,6 @@
 use std::iter::zip;
+use rand::thread_rng;
+use rand::seq::SliceRandom;
 
 #[derive(Debug, Clone)]
 pub struct Trainer {
@@ -86,10 +88,12 @@ impl Answer {
 
 impl Trainer {
     pub fn new(words: &[Word]) -> Self {
-        Self {
-            words: words.to_vec(),
-            words_count: words.len(),
-        }
+        let words_count = words.len();
+        let mut words = words.to_vec();
+
+        words.shuffle(&mut thread_rng());
+
+        Self { words, words_count }
     }
 
     pub fn answer(&self, answer: &Answer) -> AnswerResult {
