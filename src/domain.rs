@@ -64,6 +64,7 @@ impl Answer {
             answer
                 .trim()
                 .split(' ')
+                .filter(|t| *t != "")
                 .map(|word| {
                     let mut variants: Vec<String> = word
                         .trim()
