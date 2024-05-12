@@ -3,6 +3,7 @@ use std::iter::zip;
 #[derive(Debug, Clone)]
 pub struct Trainer {
     words: Vec<Word>,
+    words_count: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -78,8 +79,8 @@ impl Answer {
 }
 
 impl Trainer {
-    pub fn new(words: Vec<Word>) -> Self {
-        Self { words }
+    pub fn new(words: &[Word]) -> Self {
+        Self { words: words.to_vec(), words_count: words.len() }
     }
 
     pub fn answer(&self, answer: Answer) -> AnswerResult {
@@ -93,6 +94,14 @@ impl Trainer {
         self.words.first()
     }
 
+    pub fn get_words_count(&self) -> usize {
+        self.words_count
+    }
+
+    pub fn get_correct_answers_count(&self) -> usize {
+        self.words_count - self.words.len()
+    }
+
     fn is_correct(&self, answer: Answer) -> bool {
         match self.get_current_word() {
             Some(current_word) => zip(answer.0, &current_word.translation)
@@ -104,6 +113,7 @@ impl Trainer {
     fn remove_first_word(&self) -> Trainer {
         Trainer {
             words: self.words.iter().skip(1).cloned().collect(),
+            words_count: self.words_count,
         }
     }
 
@@ -115,6 +125,7 @@ impl Trainer {
                 .enumerate()
                 .map(|(i, _)| self.words[(i + 1) % self.words.len()].clone())
                 .collect(),
+            words_count: self.words_count,
         }
     }
 }

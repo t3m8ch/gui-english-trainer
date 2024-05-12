@@ -54,7 +54,7 @@ impl Application {
                 answer_text_input,
             } => match trainer.get_current_word() {
                 Some(current_word) => {
-                    self.current_word_view(current_word, answer_text_input, answer_result)
+                    self.current_word_view(trainer, current_word, answer_text_input, answer_result)
                 }
                 None => self.words_are_out_view(),
             },
@@ -148,11 +148,13 @@ impl Application {
 
     fn current_word_view(
         &self,
+        trainer: &Trainer,
         current_word: &Word,
         text_input_value: &str,
         answer_result: &Option<AnswerResult>,
     ) -> Column<Message> {
         app_column()
+            .push(text(format!("{}/{}", trainer.get_correct_answers_count(), trainer.get_words_count())))
             .push(text(current_word.get_original()))
             .push(match answer_result {
                 Some(answer_result) => self.answer_correctness_view(answer_result, current_word),

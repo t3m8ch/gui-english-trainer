@@ -11,7 +11,7 @@ pub enum LoadTrainerError {
 
 pub async fn load_trainer_from_file() -> Result<Trainer, LoadTrainerError> {
     Ok(Trainer::new(
-        read_text()
+        &read_text()
             .await?
             .split('\n')
             .filter(|line| line.trim() != "")
