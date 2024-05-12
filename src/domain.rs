@@ -12,10 +12,20 @@ pub struct Word {
 }
 
 impl Word {
-    pub fn new(original: String, translation: Vec<Vec<String>>) -> Self {
+    pub fn new(original: &str, translation: &[Vec<String>]) -> Self {
         Self {
-            original,
-            translation,
+            original: original.trim().to_lowercase(),
+            translation: translation
+                .iter()
+                .map(|word| {
+                    let mut words: Vec<String> = word
+                        .iter()
+                        .map(|variant| variant.trim().to_lowercase())
+                        .collect();
+                    words.sort();
+                    words
+                })
+                .collect(),
         }
     }
 
@@ -45,11 +55,25 @@ impl AnswerResult {
 }
 
 #[derive(Debug, Clone)]
-pub struct Answer(Vec<String>);
+pub struct Answer(Vec<Vec<String>>);
 
 impl Answer {
     pub fn from_answer_text(answer: &str) -> Self {
-        Self(answer.split(' ').map(|s| s.to_string()).collect())
+        Self(
+            answer
+                .trim()
+                .split(' ')
+                .map(|word| {
+                    let mut variants: Vec<String> = word
+                        .trim()
+                        .split('/')
+                        .map(|w| w.trim().to_lowercase())
+                        .collect();
+                    variants.sort();
+                    variants
+                })
+                .collect(),
+        )
     }
 }
 
@@ -72,7 +96,7 @@ impl Trainer {
     fn is_correct(&self, answer: Answer) -> bool {
         match self.get_current_word() {
             Some(current_word) => zip(answer.0, &current_word.translation)
-                .all(|(actual, expected)| expected.contains(&actual)),
+                .all(|(actual, expected)| actual == *expected),
             None => false,
         }
     }
@@ -93,17 +117,6 @@ impl Trainer {
                 .collect(),
         }
     }
-}
-
-pub fn get_test_trainer() -> Trainer {
-    Trainer::new(vec![Word::new(
-        "Читать по буквам".to_string(),
-        vec![
-            vec!["spell".to_string()],
-            vec!["spelt".to_string(), "spelled".to_string()],
-            vec!["spell".to_string(), "spelled".to_string()],
-        ],
-    )])
 }
 
 impl AnswerResult {

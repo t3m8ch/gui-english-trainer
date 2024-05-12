@@ -194,12 +194,15 @@ impl Application {
             .push(
                 text_input("Введите перевод", text_input_value)
                     .width(500)
-                    .on_submit(Message::SubmitAnswer(Answer::from_answer_text(text_input_value)))
+                    .on_submit(Message::SubmitAnswer(Answer::from_answer_text(
+                        text_input_value,
+                    )))
                     .on_input(Message::ChangeAnswerTextInput),
             )
             .push(
-                button("Ответить")
-                    .on_press(Message::SubmitAnswer(Answer::from_answer_text(text_input_value))),
+                button("Ответить").on_press(Message::SubmitAnswer(Answer::from_answer_text(
+                    text_input_value,
+                ))),
             )
     }
 }

@@ -48,7 +48,7 @@ fn parse_line(line: &str) -> Result<Word, LoadTrainerError> {
                 })
                 .collect::<Vec<Vec<String>>>();
 
-            return Ok(Word::new(original.to_string(), translation));
+            return Ok(Word::new(original, &translation));
         }
     }
 
